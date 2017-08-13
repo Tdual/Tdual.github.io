@@ -40,6 +40,7 @@ $$Dir(\theta|\alpha)=\frac{\Gamma \left(\sum_i^k \alpha_i \right)}{\prod^k_i\Gam
 # LDA (2)
 ### 文章が従う分布
 $$p(w|\alpha,\beta)= \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta) \right)d\theta$$
+<center><img src=lda.png width=60%></center>
 ---
 
 # LDA
