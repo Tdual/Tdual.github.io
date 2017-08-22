@@ -39,9 +39,33 @@ $$Dir(\theta|\alpha)=\frac{\Gamma \left(\sum_i^k \alpha_i \right)}{\prod^k_i\Gam
 ---
 # LDA (2)
 ### 文章が従う分布
-$$p(w|\alpha,\beta)= \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta) \right)d\theta$$
-<center><img src=lda.png width=60%></center>
+今まで話したことを数式で表現すると
+$$p\left(w |\alpha,\eta \right)= \int \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta)p(\beta| \eta) \right)d\theta d\beta$$
+<center><img src=lda.png width=50%></center>
 ---
 
 # LDA
-$$ i\gamma^{\mu}\partial_{\mu}\psi -m\psi = 0$$
+### 適切なハイパーパラメータα,ηを求めたい
+尤度を最大化だ！
+$$p\left(w | \alpha,\eta \right)= \int \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta)p(\beta| \eta) \right)d\theta d\beta=\int \int p\left(w,\theta, \beta | \alpha,\eta \right)d\theta d\beta$$
+
+このままでは計算できないのでｐに近い分布qを求めることを考える
+$$p\left(w | \alpha,\eta \right)=\int \int q\left(\theta,\beta | \gamma, \phi \right)\frac{p\left(w,\theta, \beta | \alpha,\eta \right)}{q(\theta,\beta | \gamma, \phi)}d\theta d\beta$$
+
+まだqも扱いづらいので独立分布に近似する（平均場近似）
+$$q(\theta,\beta | \gamma, \phi) = q\left(\theta | \gamma \right)q\left(\beta |\phi \right) \equiv q(\theta)q(\beta)$$
+
+$$\int q(\theta) d\theta = 1, \int q(\beta) d\beta = 1$$
+
+---
+# LDA
+### 適切なハイパーパラメータα,ηを求めたい
+logとると都合がいい（桁落ち防止、単調増加でなめらか凸関数）のでlogとって
+$$\log p\left(w,\theta,\beta | \gamma, \phi \right) = \log \int \int q(\theta)q(\beta)\frac{p\left(w,\theta, \beta |\alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta$$
+$$\geq \int \int q(\theta)q(\beta) \log \frac{p\left(w,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta
+\equiv I\left(q(\theta),q(\beta)\right)$$
+
+Iを最大化すれば良い
+
+Jensenの不等式
+＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠
