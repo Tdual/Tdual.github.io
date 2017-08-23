@@ -68,4 +68,3 @@ $$\geq \int \int q(\theta)q(\beta) \log \frac{p\left(w,\theta, \beta | \alpha,\e
 Iを最大化すれば良い
 
 Jensenの不等式
-＠＠＠＠＠＠＠＠＠＠＠＠＠＠＠
