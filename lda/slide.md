@@ -26,23 +26,28 @@ class: center, middle
 ## 日本語では「潜在ディリクレ分配法」
 ### ・文章ごとのトピック分布が「ディリクレ分布」に従う
 ### ・ベイズ推定を使う
-$$Dir(\theta|\alpha)=\frac{\Gamma \left(\sum_i^k \alpha_i \right)}{\prod^k_i\Gamma(\alpha_i)}\prod_i^k\theta_i^{\alpha_i - 1}$$
+$$Dir_k(\theta|\alpha)=\frac{\Gamma \left(\sum_i^k \alpha_i \right)}{\prod^k_i\Gamma(\alpha_i)}\prod_i^k\theta_i^{\alpha_i - 1}$$
 
 ---
 # LDA その２
 ### 文章が従う分布
 今まで話したことを数式で表現すると
-$$p\left(w |\alpha,\eta \right)= \int \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta)p(\beta| \eta) \right)d\theta d\beta$$
+$$p(D| \alpha, \eta) = \prod_d^M p\left(w_d |\alpha,\eta \right)= \prod_d^M \int \int Dir(\theta_d|\alpha) \left(\prod^{N_d}_n \sum_z^k p(z_d^n|\theta_d)
+p\left(w_d^n| z_d^n,\beta \right)p(\beta| \eta) \right)d\theta_d d\beta$$
 <center><img src=lda.png width=50%></center>
 ---
 
 # LDA その３
-### 適切なハイパーパラメータα,ηを求めたい
+#### 適切なハイパーパラメータα,ηを求めたい
 尤度を最大化だ！
-$$p\left(w | \alpha,\eta \right)= \int \int Dir(\theta|\alpha) \left(\prod^N_n \sum_z p(z_n|\theta)p(w_n|z_n,\beta)p(\beta| \eta) \right)d\theta d\beta=\int \int p\left(w,\theta, \beta | \alpha,\eta \right)d\theta d\beta$$
+$$p\left(D | \alpha,\eta \right)
+= \prod_d^M \int \int Dir_k(\theta_d|\alpha) \left(\prod^{N_d}_n \sum_z p(z_d^n|\theta_d)
+p\left(w_d^n| z_d^n,\beta \right)p(\beta| \eta) \right)d\theta_d d\beta
+\equiv \int \int p\left(D,\theta, \beta | \alpha,\eta \right)d\theta d\beta$$
 
 このままでは積分計算できないのでｐに近い分布qを求めることを考える
-$$p\left(w | \alpha,\eta \right)=\int \int q\left(\theta,\beta | \gamma, \phi \right)\frac{p\left(w,\theta, \beta | \alpha,\eta \right)}{q(\theta,\beta | \gamma, \phi)}d\theta d\beta$$
+$$p\left(D | \alpha,\eta \right)
+=\int \int q\left(\theta,\beta | \gamma, \phi \right)\frac{p\left(D,\theta, \beta | \alpha,\eta \right)}{q(\theta,\beta | \gamma, \phi)}d\theta d\beta$$
 
 まだqも扱いづらいので独立分布に近似する（平均場近似）
 $$q(\theta,\beta | \gamma, \phi) = q\left(\theta | \gamma \right)q\left(\beta |\phi \right) \equiv q(\theta)q(\beta)$$
@@ -51,15 +56,16 @@ $$\int q(\theta) d\theta = 1, \int q(\beta) d\beta = 1$$
 
 ---
 # LDA その４
-### 適切なハイパーパラメータα,ηを求めたい
+#### 適切なハイパーパラメータα,ηを求めたい
 logとると都合がいい（桁落ち防止、単調増加でなめらか凸関数）のでlogとって
-$$\log p\left(w,\theta,\beta | \gamma, \phi \right) = \log \int \int q(\theta)q(\beta)\frac{p\left(w,\theta, \beta |\alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta$$
-$$\geq \int \int q(\theta)q(\beta) \log \frac{p\left(w,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta
+$$\log p\left(D,\theta,\beta | \gamma, \phi \right)
+= \log \int \int q(\theta)q(\beta)\frac{p\left(D,\theta, \beta |\alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta$$
+$$\geq \int \int q(\theta)q(\beta) \log \frac{p\left(D,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta
 \equiv I\left(q(\theta),q(\beta)\right)$$
 
-Iを最大化すするような
+Iを最大化すするようなq(θ),q(β)を求めたい！
 
-Jensenの不等式を使った。
+ちなみに、二行目はJensenの不等式を使った。
 $$\int f(y(x))p(x) dx \ge f\left( \int y(x)p(x) dx \right)$$
 
 
@@ -94,23 +100,23 @@ $$\int\frac{\partial L}{\partial q(\beta)} d\theta = 0$$
 
 ---
 # LDA その5
-### 適切なハイパーパラメータα,ηを求めたい
+#### 適切なハイパーパラメータα,ηを求めたい
 
-$$L = q(\theta)q(\beta) \log \frac{p\left(w,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}
-=q(\theta)q(\beta)(\log p\left(w,\theta, \beta | \alpha,\eta \right) - \log q(\theta) - \log q(\beta))$$
+$$L = q(\theta)q(\beta) \log \frac{p\left(D,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}
+=q(\theta)q(\beta)(\log p\left(D,\theta, \beta | \alpha,\eta \right) - \log q(\theta) - \log q(\beta))$$
 
 δq(θ)方向の変分を求める。
 $$\int\frac{\partial L}{\partial q(\theta)} d\beta
-= \int \left[q(\beta) \left(\log p\left(w,\theta, \beta | \alpha,\eta \right) - \log q(\theta) - \log q(\beta) \right) - q(\theta)q(\beta)\frac{1}{q(\theta)} \right]d\beta=0$$
+= \int \left[q(\beta) \left(\log p\left(D,\theta, \beta | \alpha,\eta \right) - \log q(\theta) - \log q(\beta) \right) - q(\theta)q(\beta)\frac{1}{q(\theta)} \right]d\beta=0$$
 
-$$q(\theta) = Ce^{\int q(\beta)\log p\left(w,\theta, \beta | \alpha,\eta \right) d\beta}=Ce^{<\log  p\left(w,\theta, \beta | \alpha,\eta \right)>_{q(\beta)}}(Cは定数)$$
+$$q(\theta) = Ce^{\int q(\beta)\log p\left(D,\theta, \beta | \alpha,\eta \right) d\beta}=Ce^{<\log  p\left(D,\theta, \beta | \alpha,\eta \right)>_{q(\beta)}}(Cは定数)$$
 
 同様にδq(β)方向の変分を求める。
-$$q(\beta) = Ce^{<\log  p\left(w,\theta, \beta | \alpha,\eta \right)>_{q(\theta)}}$$
+$$q(\beta) = Ce^{<\log  p\left(D,\theta, \beta | \alpha,\eta \right)>_{q(\theta)}}$$
 
 ---
 # LDA その6
-### 適切なハイパーパラメータα,ηを求めたい
+#### 適切なハイパーパラメータα,ηを求めたい
 
 $$q(\theta) = Ce^{<\log  p\left(w,\theta, \beta | \alpha,\eta \right)>_{q(\beta)}}$$
 
@@ -122,10 +128,9 @@ $$q(\beta) = Ce^{<\log  p\left(w,\theta, \beta | \alpha,\eta \right)>_{q(\theta)
 そのq(β）からIを最大にするq(θ)、α、ηを求める。  
 収束するまで繰り返す  
 
-### ->最適なα、ηが求まる。  
+#### ->最適なα、ηが求まる。  
 
-### そういうアルゴリズムを組めば良いだけ。
-### ね？簡単でしょう？
+#### そういうアルゴリズムを組めば良いだけ。
 
 
 
@@ -144,3 +149,19 @@ pip install gensim
 ```
 例：
 https://github.com/Tdual/topic_model/blob/master/LDA_gensim.ipynb
+
+---
+# matrix factrization的な解釈
+
+$$p\left(w_d |\alpha,\eta \right)
+=\int \int Dir_k(\theta_d|\alpha) \left(\prod^{N_d}_n \sum_z^k p(z_d^n|\theta_d)
+p\left(w_d^n| z_d^n,\beta \right)p(\beta| \eta) \right)d\theta_d d\beta$$
+文章の生成確率の式をよく見ると、θ、ηを与えた時にd番目の文章のn番目の単語の出現確率が含まれる。
+$$p(w_d^n|\theta,\eta)
+\equiv \sum_z^k p(z_d^n|\theta_d)p\left(w_d^n| z_d^n,\beta \right)
+\equiv \sum_i^k \theta_i^d \beta_i^{w}=\Theta B $$
+
+$$(z_d^n \equiv i, p(i|\theta_d) \equiv \theta_i^d, p\left(w_d^n| i,\beta \right) \equiv \beta_i^{w})$$
+
+Θは（M,i）行列,Bは(i,V)行列,（Mは文章数、Vは単語数）
+<center><img src=factrization.png width=50%></center>
