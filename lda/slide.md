@@ -84,7 +84,7 @@ $$=\sum_z\int \int[L \left(q(z)+\delta q(z),q(\theta)+\delta q(\theta),q(\beta)+
 $$=\sum_x\int\int [L \left(q(z),q(\theta),q(\beta) \right) + \frac{\partial L}{\partial q(z)}\delta q(z)+ \frac{\partial L}{\partial q(\theta)}\delta q(\theta) + \frac{\partial L}{\partial q(\beta)}\delta q(\beta) - L \left(q(z),q(\theta),q(\beta) \right)] d \theta d \beta$$
 
 ---
-## 変分法 その２
+### 変分法 その２
 $$= \sum_z\int\int\left[\frac{\partial L}{\partial q(z)}\delta q(z)+\frac{\partial L}{\partial q(\theta)}\delta q(\theta) + \frac{\partial L}{\partial q(\beta)}\delta q(\beta)\right]d\theta d\beta$$
 $$=\sum_z\left(\int\int\frac{\partial L}{\partial q(z)}d\theta\beta\right)\delta q(z)+\int \left(\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta \right)\delta q(\theta)d\theta + \int \left(\sum_z\int\frac{\partial L}{\partial q(\beta)} d\theta \right)\delta q(\beta)d\beta = 0$$
 
@@ -98,7 +98,6 @@ $$\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta
 
 δq(z)方向の変分は
 $$\int\int\frac{\partial L}{\partial q(z)}d\theta d\beta = 0$$
-
 ※パラメータ微分関数がない場合のEuler-Lagrange方程式に他ならない
 
 
