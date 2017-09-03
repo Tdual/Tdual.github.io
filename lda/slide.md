@@ -99,7 +99,7 @@ $$\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta
 δq(z)方向の変分は
 $$\int\int\frac{\partial L}{\partial q(z)}d\theta d\beta = 0$$
 
-※パラメータ微分関数がない場合のEuler-Lagrange方程式に他ならない)
+※パラメータ微分関数がない場合のEuler-Lagrange方程式に他ならない
 
 
 ---
