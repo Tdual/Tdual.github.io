@@ -61,13 +61,13 @@ $$\sum_z q(z) = 1,\int q(\theta) d\theta = 1, \int q(\beta) d\beta = 1$$
 logとると都合がいい（桁落ち防止、単調増加でなめらか凸関数）のでlogとって
 $$\log p\left(D,\theta,\beta | \gamma, \phi \right)
 = \log \left(\prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta)\frac{p\left(w,z,\theta, \beta |\alpha,\eta \right)}{q(z)q(\theta)q(\beta)}d\theta d\beta \right)$$
-$$\geq \prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta) \log \frac{p\left(D,\theta, \beta | \alpha,\eta \right)}{q(\theta)q(\beta)}d\theta d\beta
+$$\geq \prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta) \log \frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z)q(\theta)q(\beta)}d\theta d\beta
 \equiv \prod_d^M\prod^{N_d}_nI\left(q(z),q(\theta),q(\beta)\right)$$
 
 Iを最大化すするようなq(z),q(θ),q(β)を求めたい！
 
-ちなみに、二行目はJensenの不等式を使った。
-$$\int f(y(x))p(x) dx \ge f\left( \int y(x)p(x) dx \right)$$
+ちなみに、二行目はJensenの不等式を使った。f(x)が上に凸の時
+$$f\left( \int y(x)p(x) dx \right) \ge \int f(y(x))p(x) dx$$
 
 
 ---
