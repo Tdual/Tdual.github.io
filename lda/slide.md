@@ -30,6 +30,7 @@ class: center, middle
 - 文章ごとのトピック分布が「ディリクレ分布」に従う
 - ベイズ推定を使う
 $$Dir_k(\theta|\alpha)=\frac{\Gamma \left(\sum_i^k \alpha_i \right)}{\prod^k_i\Gamma(\alpha_i)}\prod_i^k\theta_i^{\alpha_i - 1}$$
+※数式が崩れているときはブラウザのリロード
 
 ---
 ## LDA その２
@@ -51,20 +52,19 @@ $$p\left(D | \alpha,\eta \right)
 =\prod_d^M\prod^{N_d}_n\sum_z^k \int \int q\left(z,\theta,\beta | \gamma, \phi \right)\frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z,\theta,\beta | \gamma, \phi)}d\theta d\beta$$
 
 まだqも扱いづらいので独立分布に近似する（平均場近似）
-$$q(z,\theta,\beta | \gamma, \phi) = q(z)q\left(\theta | \gamma \right)q\left(\beta |\phi \right) \equiv q(z)q(\theta)q(\beta)$$
+$$q(z,\theta,\beta | \gamma, \phi) = q(z)q(\theta,\beta | \gamma,\phi) \equiv q(z)q(\theta,\beta)$$
 
-$$\sum_z q(z) = 1,\int q(\theta) d\theta = 1, \int q(\beta) d\beta = 1$$
-
+$$\sum_z q(z) = 1,\int\int q(\theta,\beta) d\theta d\beta = 1$$
 ---
 ## LDA その４
 #### 適切なハイパーパラメータα,ηを求めたい
 logとると都合がいい（桁落ち防止、単調増加でなめらか凸関数）のでlogとって
 $$\log p\left(D,\theta,\beta | \gamma, \phi \right)
-= \log \left(\prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta)\frac{p\left(w,z,\theta, \beta |\alpha,\eta \right)}{q(z)q(\theta)q(\beta)}d\theta d\beta \right)$$
-$$\geq \prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta) \log \frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z)q(\theta)q(\beta)}d\theta d\beta
-\equiv \prod_d^M\prod^{N_d}_nI\left(q(z),q(\theta),q(\beta)\right)$$
+= \log \left(\prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta)q(\beta)\frac{p\left(w,z,\theta, \beta |\alpha,\eta \right)}{q(z)q(\theta,\beta)}d\theta d\beta \right)$$
+$$\geq \prod_d^M\prod^{N_d}_n\sum_z^k \int \int q(z)q(\theta,\beta) \log \frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z)q(\theta,\beta)}d\theta d\beta
+\equiv \prod_d^M\prod^{N_d}_nI\left(q(z),q(\theta,\beta)\right)$$
 
-Iを最大化すするようなq(z),q(θ),q(β)を求めたい！
+Iを最大化すするようなq(z),q(θ,β)を求めたい！
 
 ちなみに、二行目はJensenの不等式を使った。f(x)が上に凸の時
 $$f\left( \int y(x)p(x) dx \right) \ge \int f(y(x))p(x) dx$$
@@ -75,26 +75,25 @@ $$f\left( \int y(x)p(x) dx \right) \ge \int f(y(x))p(x) dx$$
 #### 極値（停留点）のパラメータを求める方法
 
 とりあえず、被積分関数をLと置く。
-$$I\left(q(z),q(\theta),q(\beta)\right) = \sum_z\int \int L\left(q(z),q(\theta),q(\beta)\right) d\theta d\beta$$
+$$I\left(q(z),q(\theta,\beta)\right) = \sum_z\int \int L\left(q(z),q(\theta,\beta)\right) d\theta d\beta$$
 
 停留点ならばδｑを少し動かしてもIの変化は０のはず。
 
-$$\delta I = I\left(q(z)+\delta q(z),q(\theta)+\delta q(\theta),q(\beta)+\delta q(\beta)\right) - I(q(z),q(\theta),q(\beta)) = 0$$
-$$=\sum_z\int \int[L \left(q(z)+\delta q(z),q(\theta)+\delta q(\theta),q(\beta)+\delta q(\beta) \right) - L(q(\theta),q(\beta))]d \theta d\beta$$
-$$=\sum_x\int\int [L \left(q(z),q(\theta),q(\beta) \right) + \frac{\partial L}{\partial q(z)}\delta q(z)+ \frac{\partial L}{\partial q(\theta)}\delta q(\theta) + \frac{\partial L}{\partial q(\beta)}\delta q(\beta) - L \left(q(z),q(\theta),q(\beta) \right)] d \theta d \beta$$
+$$\delta I = I\left(q(z)+\delta q(z),q(\theta,\beta)+\delta q(\theta,\beta)\right) - I\left(q(z),q(\theta),q(\beta)\right) = 0$$
+$$\sum_z\int \int\left(L \left(q(z)+\delta q(z),q(\theta,\beta)+\delta q(\theta,\beta)\right) - L(q(z),q(\theta,\beta))\right)d \theta d\beta=0$$
+被積分関数を１次までTaylor展開して
+$$\sum_z\int\int \left(L \left(q(z),q(\theta,\beta) \right) + \frac{\partial L}{\partial q(z)}\delta q(z)+ \frac{\partial L}{\partial q(\theta,\beta)}\delta q(\theta,\beta) - L \left(q(z),q(\theta),q(\beta) \right) \right)d \theta d \beta=0$$
 
 ---
 ### 変分法 その２
-$$= \sum_z\int\int\left[\frac{\partial L}{\partial q(z)}\delta q(z)+\frac{\partial L}{\partial q(\theta)}\delta q(\theta) + \frac{\partial L}{\partial q(\beta)}\delta q(\beta)\right]d\theta d\beta$$
-$$=\sum_z\left(\int\int\frac{\partial L}{\partial q(z)}d\theta\beta\right)\delta q(z)+\int \left(\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta \right)\delta q(\theta)d\theta + \int \left(\sum_z\int\frac{\partial L}{\partial q(\beta)} d\theta \right)\delta q(\beta)d\beta = 0$$
+$$\sum_z\int\int\left(\frac{\partial L}{\partial q(z)}\delta q(z)+\frac{\partial L}{\partial q(\theta,\beta)}\delta q(\theta,\beta) \right)d\theta d\beta=0$$
+$$\sum_z\left(\int\int\frac{\partial L}{\partial q(z)}d\theta\beta\right)\delta q(z)
++\int\int \left(\sum_z\frac{\partial L}{\partial q(\theta,\beta)} \right)\delta q(\theta,\beta)d\theta d\beta  = 0$$
 
- 任意のδq(z),δq(θ),δq(θ)について成り立つのでそれぞれの項で被積分関数が０しか有り得ない。
+ 任意のδq(z),q(θ,β)について成り立つのでそれぞれの項で被積分関数が０しか有り得ない。
 
-δq(θ)方向の変分とδq(β)方向の変分が満たす式は
-$$\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta
-=0,
-\sum_z\int\frac{\partial L}{\partial q(\beta)} d\theta
-= 0$$
+δq(θ,β)方向の変分が満たす式は
+$$\sum_z\frac{\partial L}{\partial q(\theta,\beta)} = 0$$
 
 δq(z)方向の変分は
 $$\int\int\frac{\partial L}{\partial q(z)}d\theta d\beta = 0$$
@@ -105,21 +104,19 @@ $$\int\int\frac{\partial L}{\partial q(z)}d\theta d\beta = 0$$
 ## LDA その5
 #### 適切なハイパーパラメータα,ηを求めたい
 
-$$L = q(z)q(\theta)q(\beta) \log \frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z)q(\theta)q(\beta)}
-=q(z)q(\theta)q(\beta)(\log p\left(w,z,\theta, \beta | \alpha,\eta \right) - \log q(z) - \log q(\theta) - \log q(\beta))$$
+$$L = q(z)q(\theta,\beta) \log \frac{p\left(w,z,\theta, \beta | \alpha,\eta \right)}{q(z)q(\theta,\beta)}
+=q(z)q(\theta,\beta)(\log p\left(w,z,\theta, \beta | \alpha,\eta \right) - \log q(z) - \log q(\theta,\beta) )$$
 
-δq(θ)方向の変分を求める。
-$$\sum_z\int\frac{\partial L}{\partial q(\theta)} d\beta
-= \sum_z\int \left[q(z)q(\beta) \left(\log p\left(w,z,\theta, \beta | \alpha,\eta \right) - \log q(\theta) - \log q(z)q(\beta) \right) - q(z)q(\theta)q(\beta)\frac{1}{q(\theta)} \right]d\beta
+δq(θ,β)方向の変分を求める。
+$$\sum_z\frac{\partial L}{\partial q(\theta,\beta)}
+= \sum_z \left(q(z) \left(\log p\left(w,z,\theta, \beta | \alpha,\eta \right) - \log q(\theta,\beta) \right) - q(z)q(\theta,\beta)\frac{1}{q(\theta,\beta)} \right)
 =0$$
 
-$$q(\theta) = Ce^{\int q(\beta)\sum \log p\left(w,z,\theta, \beta | \alpha,\eta \right) d\beta}=Ce^{\left<\log p\left(w,\theta, \beta | \alpha,\eta \right)\right>_{q(\beta)}}(Cは定数)$$
+$$q(\theta) = Ce^{\sum q(z)\log p\left(w,z,\theta, \beta | \alpha,\eta \right) }=Ce^{\left<\log p\left(w,z,\theta, \beta | \alpha,\eta \right)\right>_{q(z)}}(Cは定数)$$
 
-同様にδq(β),δq(z)方向の変分を求める。
+同様にδq(z)方向の変分を求めると。
 
-$$q(\beta) = Ce^{\left<\log p\left(w,\theta, \beta | \alpha,\eta \right) \right>_{q(\theta)}}$$
-
-$$q(z) = Ce^{\left<\log  p\left(w,z,\theta, \beta | \alpha,\eta \right) \right>_{q(\theta)q(\beta)}}$$
+$$q(z) = Ce^{\left<\log  p\left(w,z,\theta, \beta | \alpha,\eta \right) \right>_{q(\theta,\beta)}}$$
 
 ---
 ## LDA その6
